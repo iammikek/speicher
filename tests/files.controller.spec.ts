@@ -1,11 +1,10 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import request from 'supertest';
-import { join } from 'node:path';
 import { rmSync } from 'node:fs';
 import { bootTestApp } from './utils/orchestr.js';
 import { FilesController } from '../src/controllers/FilesController.js';
 
-const dbPath = join(process.cwd(), 'tmp-files-controller.db');
+const dbPath = ':memory:';
 let kernel: any;
 let server: any;
 let Route: any;
@@ -29,7 +28,7 @@ describe('FilesController routes', () => {
     try {
       await kernel.close();
     } catch {}
-    rmSync(dbPath, { force: true });
+    if (dbPath !== ':memory:') rmSync(dbPath, { force: true });
   });
 
   it('health responds ok', async () => {

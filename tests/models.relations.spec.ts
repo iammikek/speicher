@@ -1,11 +1,10 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { join } from 'node:path';
 import { rmSync } from 'node:fs';
 import { bootTestApp } from './utils/orchestr.js';
 import { File } from '../src/models/File.js';
 import { Attribute } from '../src/models/Attribute.js';
 
-const dbPath = join(process.cwd(), 'tmp-models-rel.db');
+const dbPath = ':memory:';
 let kernel: any;
 
 describe('Models relations', () => {
@@ -16,7 +15,7 @@ describe('Models relations', () => {
 
   afterAll(async () => {
     await kernel.close();
-    rmSync(dbPath, { force: true });
+    if (dbPath !== ':memory:') rmSync(dbPath, { force: true });
   });
 
   it('dynamic relation returns attributes', async () => {

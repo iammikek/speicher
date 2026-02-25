@@ -1,10 +1,9 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { join } from 'node:path';
 import { rmSync } from 'node:fs';
 import { bootTestApp } from './utils/orchestr.js';
 import { FilesService } from '../src/services/FilesService.js';
 
-const dbPath = join(process.cwd(), 'tmp-files-service.db');
+const dbPath = ':memory:';
 let kernel: any;
 
 describe('FilesService', () => {
@@ -15,7 +14,7 @@ describe('FilesService', () => {
 
   afterAll(async () => {
     await kernel.close();
-    rmSync(dbPath, { force: true });
+    if (dbPath !== ':memory:') rmSync(dbPath, { force: true });
   });
 
   it('creates file with attributes and retrieves it', async () => {
