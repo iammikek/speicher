@@ -1,0 +1,279 @@
+openapi: 3.0.3
+info:
+  title: Speicher API
+  version: 0.1.0
+servers:
+  - url: http://localhost:3000
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+  /files:
+    get:
+      summary: List files
+      parameters:
+        - in: query
+          name: externalUploadId
+          schema:
+            type: string
+        - in: query
+          name: filename
+          schema:
+            type: string
+        - in: query
+          name: contentType
+          schema:
+            type: string
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+        - in: query
+          name: perPage
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+      responses:
+        '200':
+          description: List of files
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FileWithAttributes'
+    post:
+      summary: Create a file
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFileRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileWithAttributes'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /files/{id}:
+    get:
+      summary: Get file by id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileWithAttributes'
+        '400':
+          description: Invalid id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /files/{id}/attributes:
+    get:
+      summary: List attributes for a file
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Attributes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Attribute'
+        '400':
+          description: Invalid id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Add attributes to a file
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddAttributesRequest'
+      responses:
+        '201':
+          description: Updated file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileWithAttributes'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+    Attribute:
+      type: object
+      required: [file_id, key, value]
+      properties:
+        id:
+          type: integer
+        file_id:
+          type: integer
+        key:
+          type: string
+        value:
+          type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+    File:
+      type: object
+      required: [id, external_upload_id, filename, content_type, size_bytes, uploaded_at]
+      properties:
+        id:
+          type: integer
+        external_upload_id:
+          type: string
+        filename:
+          type: string
+        content_type:
+          type: string
+        size_bytes:
+          type: integer
+        checksum:
+          type: string
+          nullable: true
+        uploaded_at:
+          type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+    FileWithAttributes:
+      allOf:
+        - $ref: '#/components/schemas/File'
+        - type: object
+          required: [attributes]
+          properties:
+            attributes:
+              type: array
+              items:
+                $ref: '#/components/schemas/Attribute'
+    CreateFileRequest:
+      type: object
+      required: [externalUploadId, filename, contentType, sizeBytes]
+      properties:
+        externalUploadId:
+          type: string
+        filename:
+          type: string
+        contentType:
+          type: string
+        sizeBytes:
+          type: integer
+          minimum: 0
+        checksum:
+          type: string
+          nullable: true
+        uploadedAt:
+          type: string
+        attributes:
+          type: array
+          items:
+            type: object
+            required: [key]
+            properties:
+              key:
+                type: string
+              value:
+                type: string
+    AddAttributesRequest:
+      type: object
+      required: [attributes]
+      properties:
+        attributes:
+          type: array
+          items:
+            type: object
+            required: [key]
+            properties:
+              key:
+                type: string
+              value:
+                type: string
