@@ -1,4 +1,4 @@
-# speicher
+# Speicher
 
 ## The Brief
 
