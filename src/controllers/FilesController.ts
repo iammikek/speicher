@@ -62,8 +62,17 @@ export class FilesController {
   };
 
   list = async (req: any, res: any) => {
-    const { externalUploadId, filename, contentType } = req.query as Record<string, string | undefined>;
-    const results = await this.service.listFiles({ externalUploadId, filename, contentType });
+    const { externalUploadId, filename, contentType, page, perPage } = req.query as Record<string, string | undefined>;
+    const pageNum = page ? Number(page) : 1;
+    const perPageNum = perPage ? Number(perPage) : 20;
+    if (Number.isNaN(pageNum) || pageNum <= 0) return res.status(400).json({ error: 'Invalid page' });
+    if (Number.isNaN(perPageNum) || perPageNum <= 0 || perPageNum > 100) {
+      return res.status(400).json({ error: 'Invalid perPage (1-100)' });
+    }
+    const results = await this.service.listFiles(
+      { externalUploadId, filename, contentType },
+      { page: pageNum, perPage: perPageNum }
+    );
     return res.json(results);
   };
 

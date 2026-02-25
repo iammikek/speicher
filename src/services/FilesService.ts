@@ -53,12 +53,19 @@ export class FilesService {
     return { ...file, attributes: attrs };
   }
 
-  async listFiles(filters: { externalUploadId?: string; filename?: string; contentType?: string }) {
+  async listFiles(
+    filters: { externalUploadId?: string; filename?: string; contentType?: string },
+    pagination?: { page: number; perPage: number }
+  ) {
     const conn = new File().getConnection();
     let qb = conn.table('files');
     if (filters.externalUploadId) qb = qb.where('external_upload_id', '=', filters.externalUploadId);
     if (filters.filename) qb = qb.where('filename', '=', filters.filename);
     if (filters.contentType) qb = qb.where('content_type', '=', filters.contentType);
+    if (pagination) {
+      const offset = (pagination.page - 1) * pagination.perPage;
+      qb = qb.limit(pagination.perPage).offset(offset);
+    }
     const rows = await qb.get();
     const results = [];
     for (const row of rows) {

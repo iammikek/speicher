@@ -96,6 +96,33 @@ describe('FilesController routes', () => {
     expect(listRes.body.length).toBeGreaterThan(0);
   });
 
+  it('supports pagination and rejects invalid params', async () => {
+    const resBad1 = await request(server).get('/files?page=0');
+    expect(resBad1.status).toBe(400);
+    const resBad2 = await request(server).get('/files?perPage=0');
+    expect(resBad2.status).toBe(400);
+    const resBad3 = await request(server).get('/files?perPage=1000');
+    expect(resBad3.status).toBe(400);
+
+    // Seed a couple files
+    await request(server).post('/files').send({
+      externalUploadId: 'upl_p1',
+      filename: 'p1.txt',
+      contentType: 'text/plain',
+      sizeBytes: 1
+    });
+    await request(server).post('/files').send({
+      externalUploadId: 'upl_p2',
+      filename: 'p2.txt',
+      contentType: 'text/plain',
+      sizeBytes: 2
+    });
+    const resPage = await request(server).get('/files?page=1&perPage=1');
+    expect(resPage.status).toBe(200);
+    expect(Array.isArray(resPage.body)).toBe(true);
+    expect(resPage.body.length).toBe(1);
+  });
+
   it('404 on non-existent file', async () => {
     const res = await request(server).get('/files/999999');
     expect(res.status).toBe(404);
