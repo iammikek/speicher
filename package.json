@@ -20,6 +20,7 @@
   "devDependencies": {
     "@types/node": "^20.11.30",
     "@types/better-sqlite3": "^7.6.9",
+    "@types/supertest": "^2.0.16",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3",
     "vitest": "^1.6.0",

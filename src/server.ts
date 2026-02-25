@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Application, Kernel, ConfigServiceProvider, Route, RouteServiceProvider } from '@orchestr-sh/orchestr';
+import { Application, Kernel, ConfigServiceProvider, Route, RouteServiceProvider, DatabaseServiceProvider, Ensemble } from '@orchestr-sh/orchestr';
 import { FilesController } from './controllers/FilesController.js';
 import { runBootstrapMigrations } from './setup/migrate.js';
 
@@ -24,8 +24,14 @@ async function bootstrap() {
     })
   );
   app.register(new RouteServiceProvider(app));
+  app.register(new DatabaseServiceProvider(app));
 
   await app.boot();
+  const db: any = app.make('db');
+  await db.connection().connect();
+  try {
+    Ensemble.setConnectionResolver(app.make('db'));
+  } catch {}
 
   await runBootstrapMigrations(DATABASE_FILE);
 
