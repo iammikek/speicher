@@ -3,6 +3,7 @@ import request from 'supertest';
 import { Kernel, Application, ConfigServiceProvider, DatabaseServiceProvider, RouteServiceProvider, Route, Ensemble } from '@orchestr-sh/orchestr';
 import { FilesController } from '../src/controllers/FilesController.js';
 import { rmSync } from 'node:fs';
+import { join } from 'node:path';
 import { getOpenApiValidator } from './utils/openapi.js';
 import { runBootstrapMigrations } from '../src/setup/migrate.js';
 
@@ -10,7 +11,7 @@ describe('OpenAPI responses', () => {
   let app: Application;
   let kernel: Kernel;
   let server: any;
-  const dbPath = './data/openapi-test.db';
+  const dbPath = join(process.cwd(), 'tmp-openapi-test.db');
 
   beforeAll(async () => {
     app = new Application(process.cwd());
