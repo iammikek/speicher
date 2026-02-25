@@ -7,6 +7,13 @@ Implement a small microservice that will interact with the upload service. Its p
 ## The service
 Built with [Orchestr](https://github.com/orchestr-sh/orchestr).
 
+## Index
+- [The Brief](#the-brief)
+- [The service](#the-service)
+  - [Installation](#installation)
+  - [Testing](#testing)
+  - [Deploying](#deploying)
+
 ### Installation
 Prerequisites:
 - Node.js 18+ and npm
